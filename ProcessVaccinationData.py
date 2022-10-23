@@ -16,6 +16,9 @@ import os
 import pandas as pd
 
 
+# from IPython.display import display
+
+
 # ###########################################
 # Application Methods
 # ###########################################
@@ -23,19 +26,20 @@ import pandas as pd
 
 def getStatesOfBrazil(inputFilesPath, filename):
     dfStatesOfBrazil = pd.read_excel(inputFilesPath + filename)
-    # display(dfStatesOfBrazil)
     return dfStatesOfBrazil
 
 
 def processSheets(inputSheets, outputFilesPath, columnsOfNewSheet, columnsOfGroupBy, outputSheetName,
                   internalSheetName):
     # message in the console
+    print()
     print("----------------------------------------------")
     print("Processing ", internalSheetName)
     print()
 
     # initializing new dataframe
     dfOneSheet = pd.DataFrame()
+    statisticList = []
 
     # processing sheets
     for sheet in inputSheets:
@@ -43,14 +47,16 @@ def processSheets(inputSheets, outputFilesPath, columnsOfNewSheet, columnsOfGrou
             # reading sheet
             dfSheet = pd.read_csv(sheet, compression='gzip', header=0, sep=',', quotechar='"')
 
+            # setting statistic
+            statisticItem = [internalSheetName, sheet, len(dfSheet)]
+            statisticList.append(statisticItem)
+
             # creating news columns to help the group by clause
             dfSheet['year'] = pd.DatetimeIndex(dfSheet['date']).year
             dfSheet['month'] = pd.DatetimeIndex(dfSheet['date']).month
             # dfStateVaccinations['year_month'] = dfStateVaccinations['date'].str.slice(start=0, stop=7)
 
-            # calculate the total number of vaccinations by city
-            # columnsOfNewSheet = ['state', 'city', 'year', 'month', 'count']
-            # columnsOfGroupBy = ['state', 'city', 'year', 'month']
+            # calculating total number of vaccinations by city
             dfStateVaccinationsGroupedByCity = dfSheet[columnsOfNewSheet].groupby(columnsOfGroupBy,
                                                                                   as_index=False).sum()
 
@@ -64,62 +70,15 @@ def processSheets(inputSheets, outputFilesPath, columnsOfNewSheet, columnsOfGrou
             # nothing to do
             pass
 
-    # remove output file if exists
-    # outputSheetName = "allStatesVaccinations.xlsx"
+    # removing output file if exists
     if os.path.exists(outputFilesPath + outputSheetName):
         os.remove(outputFilesPath + outputSheetName)
 
-    # save sheet
-    # internalSheetName = "vaccinations"
+    # saving sheet
     with pd.ExcelWriter(outputFilesPath + outputSheetName, mode='w', ) as writer:
         dfOneSheet.to_excel(writer, sheet_name=internalSheetName)
 
-
-def processVaccinationSheets(inputFilesPath, outputFilesPath, dfStatesOfBrazil, vaccinantionDatasetUrl):
-    # initializing new dataframe
-    dfAllStatesOfBrazil = pd.DataFrame()
-
-    # processing vaccinations per states
-    for state in dfStatesOfBrazil["initials"]:
-        # # downloading file from Wesley Cota (wcota) github
-        # urlAndFileName = vaccinantionDatasetUrl + 'processed_' + state.strip() + '.csv.gz'
-        # r = requests.get(urlAndFileName, allow_redirects=True)
-        # fullFileName = inputFilesPath + 'processed_' + state.strip() + '.csv.gz'
-        # open(fullFileName, 'wb').write(r.content)
-
-        # getting the vaccinations of state
-        fullFileName = inputFilesPath + 'processed_' + state.strip() + '.csv.gz'
-        try:
-            # reading sheet of state vaccinations
-            dfStateVaccinations = pd.read_csv(fullFileName, compression='gzip', header=0, sep=',', quotechar='"')
-
-            # creating news columns to help the group by clause
-            dfStateVaccinations['year'] = pd.DatetimeIndex(dfStateVaccinations['date']).year
-            dfStateVaccinations['month'] = pd.DatetimeIndex(dfStateVaccinations['date']).month
-            # dfStateVaccinations['year_month'] = dfStateVaccinations['date'].str.slice(start=0, stop=7)
-
-            # calculate the total number of vaccinations by city
-            dfStateVaccinationsGroupedByCity = dfStateVaccinations[['state', 'city', 'year', 'month', 'count']].groupby(
-                ['state', 'city', 'year', 'month'], as_index=False).sum()
-
-            # adding dataframe of all states of Brazil
-            dfAllStatesOfBrazil = pd.concat([dfAllStatesOfBrazil, dfStateVaccinationsGroupedByCity])
-
-            # message showing processing the state
-            print("Processing state", state)
-
-        except:
-            # nothing to do
-            pass
-
-    # remove output file if exists
-    outputFilename = "allStatesVaccinations.xlsx"
-    if os.path.exists(outputFilesPath + outputFilename):
-        os.remove(outputFilesPath + outputFilename)
-
-    # save sheet
-    with pd.ExcelWriter(outputFilesPath + outputFilename, mode='w', ) as writer:
-        dfAllStatesOfBrazil.to_excel(writer, sheet_name="vaccinations")
+    return statisticList
 
 
 # ###########################################
@@ -132,12 +91,15 @@ if __name__ == '__main__':
 
     inputFilesPath = '01-Input Files/'
     outputFilesPath = '02-Output Files/'
-    vaccinationDatasetUrl = 'https://github.com/wcota/covid19br-vac/'
+    # vaccinationDatasetUrl = 'https://github.com/wcota/covid19br-vac/'
 
     # getting states of Brazil
     dfStatesOfBrazil = getStatesOfBrazil(workingPath + inputFilesPath, 'states_of_brazil.xlsx')
 
-    # build list of states to process the vaccinations data
+    # statistic of processing
+    statisticList = []
+
+    # building list of states to process the vaccinations data
     inputSheets = []
     for state in dfStatesOfBrazil["initials"]:
         # setting the full path and sheet name for the vaccinations data
@@ -146,22 +108,17 @@ if __name__ == '__main__':
     # processing vaccination data
     columnsOfNewSheet = ['state', 'city', 'year', 'month', 'count']
     columnsOfGroupBy = ['state', 'city', 'year', 'month']
-    outputSheetName = "allVaccinationsOfStates.xlsx"
+    outputSheetName = "allVaccinations.xlsx"
     internalSheetName = "vaccinations"
-    processSheets(inputSheets \
-                  , workingPath + outputFilesPath \
-                  , columnsOfNewSheet \
-                  , columnsOfGroupBy \
-                  , outputSheetName \
-                  , internalSheetName \
-                  )
-    # processVaccinationSheets(workingPath + inputFilesPath \
-    #                          , workingPath + outputFilesPath \
-    #                          , dfStatesOfBrazil \
-    #                          , vaccinationDatasetUrl \
-    #                          )
+    statisticList = statisticList + processSheets(inputSheets \
+                                                  , workingPath + outputFilesPath \
+                                                  , columnsOfNewSheet \
+                                                  , columnsOfGroupBy \
+                                                  , outputSheetName \
+                                                  , internalSheetName \
+                                                  )
 
-    # build list of sheets to process the deaths 
+    # building list of sheets to process the deaths
     inputSheets.clear()
     inputSheets.append(workingPath + inputFilesPath + 'cases-brazil-cities-time_2020.csv.gz')
     inputSheets.append(workingPath + inputFilesPath + 'cases-brazil-cities-time_2021.csv.gz')
@@ -172,15 +129,15 @@ if __name__ == '__main__':
     columnsOfGroupBy = ['state', 'city', 'year', 'month']
     outputSheetName = "allDeaths.xlsx"
     internalSheetName = "deaths"
-    processSheets(inputSheets \
-                  , workingPath + outputFilesPath \
-                  , columnsOfNewSheet \
-                  , columnsOfGroupBy \
-                  , outputSheetName \
-                  , internalSheetName \
-                  )
+    statisticList = statisticList + processSheets(inputSheets \
+                                                  , workingPath + outputFilesPath \
+                                                  , columnsOfNewSheet \
+                                                  , columnsOfGroupBy \
+                                                  , outputSheetName \
+                                                  , internalSheetName \
+                                                  )
 
-    # build list of sheets to process new cases
+    # building list of sheets to process new cases
     inputSheets.clear()
     inputSheets.append(workingPath + inputFilesPath + 'cases-brazil-cities-time_2020.csv.gz')
     inputSheets.append(workingPath + inputFilesPath + 'cases-brazil-cities-time_2021.csv.gz')
@@ -191,13 +148,19 @@ if __name__ == '__main__':
     columnsOfGroupBy = ['state', 'city', 'year', 'month']
     outputSheetName = "allCases.xlsx"
     internalSheetName = "cases"
-    processSheets(inputSheets \
-                  , workingPath + outputFilesPath \
-                  , columnsOfNewSheet \
-                  , columnsOfGroupBy \
-                  , outputSheetName \
-                  , internalSheetName \
-                  )
+    statisticList = statisticList + processSheets(inputSheets \
+                                                  , workingPath + outputFilesPath \
+                                                  , columnsOfNewSheet \
+                                                  , columnsOfGroupBy \
+                                                  , outputSheetName \
+                                                  , internalSheetName \
+                                                  )
+
+    # saving statistic sheet
+    statisticSheetName = workingPath + outputFilesPath + 'processingStatistics.xlsx'
+    dfStatistic = pd.DataFrame(statisticList, columns=['subject', 'sheet', 'number of rows'])
+    with pd.ExcelWriter(statisticSheetName, mode='w', ) as writer:
+        dfStatistic.to_excel(writer)
 
     # Wait for the user input to terminate the program
     # input("Press any key to terminate the program")
