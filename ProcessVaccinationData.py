@@ -157,7 +157,7 @@ if __name__ == '__main__':
                                                   )
 
     # saving statistic sheet
-    statisticSheetName = workingPath + outputFilesPath + 'processingStatistics.xlsx'
+    statisticSheetName = workingPath + outputFilesPath + 'ProcessingStatistics.xlsx'
     dfStatistic = pd.DataFrame(statisticList, columns=['subject', 'sheet', 'number of rows'])
     with pd.ExcelWriter(statisticSheetName, mode='w', ) as writer:
         dfStatistic.to_excel(writer)
