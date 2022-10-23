@@ -106,10 +106,10 @@ if __name__ == '__main__':
         inputSheets.append(workingPath + inputFilesPath + 'processed_' + state.strip() + '.csv.gz')
 
     # processing vaccination data
-    columnsOfNewSheet = ['state', 'city', 'year', 'month', 'count']
-    columnsOfGroupBy = ['state', 'city', 'year', 'month']
-    outputSheetName = "allVaccinations.xlsx"
-    internalSheetName = "vaccinations"
+    columnsOfNewSheet = ['state', 'city', 'ibgeID', 'year', 'month', 'count']
+    columnsOfGroupBy = ['state', 'city', 'ibgeID', 'year', 'month']
+    outputSheetName = "Vaccination.xlsx"
+    internalSheetName = "Vaccination"
     statisticList = statisticList + processSheets(inputSheets \
                                                   , workingPath + outputFilesPath \
                                                   , columnsOfNewSheet \
@@ -125,10 +125,10 @@ if __name__ == '__main__':
     inputSheets.append(workingPath + inputFilesPath + 'cases-brazil-cities-time.csv.gz')
 
     # processing deaths data
-    columnsOfNewSheet = ['state', 'city', 'year', 'month', 'newDeaths']
-    columnsOfGroupBy = ['state', 'city', 'year', 'month']
-    outputSheetName = "allDeaths.xlsx"
-    internalSheetName = "deaths"
+    columnsOfNewSheet = ['state', 'city', 'ibgeID', 'year', 'month', 'newDeaths']
+    columnsOfGroupBy = ['state', 'city', 'ibgeID', 'year', 'month']
+    outputSheetName = "CovidDeath.xlsx"
+    internalSheetName = "CovidDeath"
     statisticList = statisticList + processSheets(inputSheets \
                                                   , workingPath + outputFilesPath \
                                                   , columnsOfNewSheet \
@@ -144,10 +144,10 @@ if __name__ == '__main__':
     inputSheets.append(workingPath + inputFilesPath + 'cases-brazil-cities-time.csv.gz')
 
     # processing deaths data
-    columnsOfNewSheet = ['state', 'city', 'year', 'month', 'newCases']
-    columnsOfGroupBy = ['state', 'city', 'year', 'month']
-    outputSheetName = "allCases.xlsx"
-    internalSheetName = "cases"
+    columnsOfNewSheet = ['state', 'city', 'ibgeID', 'year', 'month', 'newCases']
+    columnsOfGroupBy = ['state', 'city', 'ibgeID', 'year', 'month']
+    outputSheetName = "CovidCase.xlsx"
+    internalSheetName = "CovidCase"
     statisticList = statisticList + processSheets(inputSheets \
                                                   , workingPath + outputFilesPath \
                                                   , columnsOfNewSheet \
