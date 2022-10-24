@@ -2,9 +2,9 @@
 Project: Final Project Vaccination
 Professor: João Meidanis
 Students: Pedro Henrique Di Francia Rosso and Rubens de Castro Pereira
-Date: 21/10/2022
+Date: 24/10/2022
 Version: 1.0.0
-Function: Process original data of vaccination, covid cases and covid death
+Function: Calculate the ratio proximity between cities from the summarized data of the cities
 """
 
 # ###########################################
