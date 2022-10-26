@@ -4,9 +4,8 @@ Professor: João Meidanis
 Students: Pedro Henrique Di Francia Rosso and Rubens de Castro Pereira
 Date: 24/10/2022
 Version: 1.0.0
-Function: Calculate the ratio proximity between cities from the summarized data of the cities
+Function: Calculate the ratio proximity between cities from the summarized data.
 """
-
 # ###########################################
 # Importing needed libraries
 # ###########################################
@@ -15,6 +14,7 @@ Function: Calculate the ratio proximity between cities from the summarized data 
 # importing python packages and modules
 import os
 import pandas as pd
+import math
 
 
 # from IPython.display import display
@@ -25,61 +25,87 @@ import pandas as pd
 # ###########################################
 
 
-def getStatesOfBrazil(inputFilesPath, filename):
-    dfStatesOfBrazil = pd.read_excel(inputFilesPath + filename)
-    return dfStatesOfBrazil
-
-
-def processSheets(inputSheets, outputFilesPath, columnsOfNewSheet, columnsOfGroupBy, outputSheetName,
-                  internalSheetName):
+def calculationVaccinationRadio(inputSheet, outputFilesPath, outputSheetName, internalSheetName):
     # message in the console
     print()
     print("----------------------------------------------")
-    print("Processing ", internalSheetName)
+    print("Processing ", inputSheet)
     print()
 
     # initializing new dataframe
-    dfOneSheet = pd.DataFrame()
+    dfResult = pd.DataFrame()
     statisticList = []
 
-    # processing sheets
-    for sheet in inputSheets:
-        try:
-            # reading sheet
-            dfSheet = pd.read_csv(sheet, compression='gzip', header=0, sep=',', quotechar='"')
+    # reading sheet
+    # dfSheet = pd.read_excel(inputSheet, header=0, sep=',', quotechar='"')
+    dfSheet = pd.read_excel(inputSheet)
 
-            # setting statistic
-            statisticItem = [internalSheetName, sheet, len(dfSheet)]
-            statisticList.append(statisticItem)
+    # group data summarizing number of vaccines of each city
+    columnsOfNewSheet = ['state', 'city', 'ibgeID', 'pop2021', 'count']
+    columnsOfGroupBy = ['state', 'city', 'ibgeID', 'pop2021']
+    dfVaccinationsGroupedByCity = dfSheet[columnsOfNewSheet].groupby(columnsOfGroupBy, as_index=False).sum()
 
-            # creating news columns to help the group by clause
-            dfSheet['year'] = pd.DatetimeIndex(dfSheet['date']).year
-            dfSheet['month'] = pd.DatetimeIndex(dfSheet['date']).month
-            # dfStateVaccinations['year_month'] = dfStateVaccinations['date'].str.slice(start=0, stop=7)
+    # auxiliary list of results
+    listEuclideanDistanceOfCity = []
 
-            # calculating total number of vaccinations by city
-            dfStateVaccinationsGroupedByCity = dfSheet[columnsOfNewSheet].groupby(columnsOfGroupBy,
-                                                                                  as_index=False).sum()
+    # calculation of euclidean distance between all cities of Brazil
+    for origin_index in range(0, len(dfVaccinationsGroupedByCity) - 1):
+        # if (origin_index > 100):
+        #     break
 
-            # adding dataframe of all states of Brazil
-            dfOneSheet = pd.concat([dfOneSheet, dfStateVaccinationsGroupedByCity])
+        for target_index in range(origin_index + 1, len(dfVaccinationsGroupedByCity)):
+            # processing cities in the same state
+            # if (dfVaccinationsGroupedByCity['state'].iloc[origin_index] != \
+            #         dfVaccinationsGroupedByCity['state'].iloc[target_index]):
+            #     continue
 
-            # message showing processing the state
-            print("Processing state", sheet)
+            # calculting the euclidean distance bewtween two cities
+            euclideanDistance = calculateEuclideanDistanceTwoCities( \
+                dfVaccinationsGroupedByCity['count'].iloc[origin_index] \
+                , dfVaccinationsGroupedByCity['pop2021'].iloc[origin_index] \
+                , dfVaccinationsGroupedByCity['count'].iloc[target_index] \
+                , dfVaccinationsGroupedByCity['pop2021'].iloc[target_index] \
+                )
 
-        except:
-            # nothing to do
-            pass
+            # if (euclideanDistance < 0.5):
+            itemEuclideanDistanceOfCity = [ \
+                dfVaccinationsGroupedByCity['state'].iloc[origin_index] \
+                , dfVaccinationsGroupedByCity['city'].iloc[origin_index] \
+                , dfVaccinationsGroupedByCity['ibgeID'].iloc[origin_index] \
+                , dfVaccinationsGroupedByCity['state'].iloc[target_index] \
+                , dfVaccinationsGroupedByCity['city'].iloc[target_index] \
+                , dfVaccinationsGroupedByCity['ibgeID'].iloc[target_index] \
+                , euclideanDistance \
+                ]
+            listEuclideanDistanceOfCity.append(itemEuclideanDistanceOfCity)
 
     # removing output file if exists
     if os.path.exists(outputFilesPath + outputSheetName):
         os.remove(outputFilesPath + outputSheetName)
 
     # saving sheet
-    with pd.ExcelWriter(outputFilesPath + outputSheetName, mode='w', ) as writer:
-        dfOneSheet.to_excel(writer, sheet_name=internalSheetName)
+    dfEuclideanDistanceOfCity = pd.DataFrame( \
+        listEuclideanDistanceOfCity, columns=[ \
+            'origin state', 'origin city', 'origin ibge id' \
+            , 'target state', 'target city', 'target ibge id' \
+            , 'distance'] \
+        )
+    # with pd.ExcelWriter(outputFilesPath + outputSheetName, mode='w', ) as writer:
+    #     dfEuclideanDistanceOfCity.to_excel(writer)
+    dfEuclideanDistanceOfCity.to_csv(outputFilesPath + outputSheetName, encoding='utf-8')
 
-    return statisticList
+
+def calculateEuclideanDistanceTwoCities(originCityVaccineCount, originCityPopulation, \
+                                        targetCityVaccineCount, targetCityPopulation):
+    # calculating percentages
+    originPercentage = (originCityVaccineCount / 4) / originCityPopulation
+    targetPercentage = (targetCityVaccineCount / 4) / targetCityPopulation
+
+    # calculating the distance
+    distance = math.sqrt(math.pow((originPercentage - targetPercentage), 2))
+
+    # returning the distance
+    return distance
 
 
 # ###########################################
@@ -90,78 +116,20 @@ if __name__ == '__main__':
     rootPath = os.getcwd().replace("\\", "/") + "/../"
     workingPath = rootPath + 'data/'
 
-    inputFilesPath = '01-Input Files/'
-    outputFilesPath = '02-Output Files/'
-    # vaccinationDatasetUrl = 'https://github.com/wcota/covid19br-vac/'
-
-    # getting states of Brazil
-    dfStatesOfBrazil = getStatesOfBrazil(workingPath + inputFilesPath, 'states_of_brazil.xlsx')
+    inputFilesPath = '02-Output Files/'
+    outputFilesPath = '03-Calculations/'
 
     # statistic of processing
     statisticList = []
 
-    # building list of states to process the vaccinations data
-    inputSheets = []
-    for state in dfStatesOfBrazil["initials"]:
-        # setting the full path and sheet name for the vaccinations data
-        inputSheets.append(workingPath + inputFilesPath + 'processed_' + state.strip() + '.csv.gz')
-
-    # processing vaccination data
-    columnsOfNewSheet = ['state', 'city', 'ibgeID', 'year', 'month', 'count']
-    columnsOfGroupBy = ['state', 'city', 'ibgeID', 'year', 'month']
-    outputSheetName = "Vaccination.xlsx"
-    internalSheetName = "Vaccination"
-    statisticList = statisticList + processSheets(inputSheets \
-                                                  , workingPath + outputFilesPath \
-                                                  , columnsOfNewSheet \
-                                                  , columnsOfGroupBy \
-                                                  , outputSheetName \
-                                                  , internalSheetName \
-                                                  )
-
-    # building list of sheets to process the deaths
-    inputSheets.clear()
-    inputSheets.append(workingPath + inputFilesPath + 'cases-brazil-cities-time_2020.csv.gz')
-    inputSheets.append(workingPath + inputFilesPath + 'cases-brazil-cities-time_2021.csv.gz')
-    inputSheets.append(workingPath + inputFilesPath + 'cases-brazil-cities-time.csv.gz')
-
-    # processing deaths data
-    columnsOfNewSheet = ['state', 'city', 'ibgeID', 'year', 'month', 'newDeaths']
-    columnsOfGroupBy = ['state', 'city', 'ibgeID', 'year', 'month']
-    outputSheetName = "CovidDeath.xlsx"
-    internalSheetName = "CovidDeath"
-    statisticList = statisticList + processSheets(inputSheets \
-                                                  , workingPath + outputFilesPath \
-                                                  , columnsOfNewSheet \
-                                                  , columnsOfGroupBy \
-                                                  , outputSheetName \
-                                                  , internalSheetName \
-                                                  )
-
-    # building list of sheets to process new cases
-    inputSheets.clear()
-    inputSheets.append(workingPath + inputFilesPath + 'cases-brazil-cities-time_2020.csv.gz')
-    inputSheets.append(workingPath + inputFilesPath + 'cases-brazil-cities-time_2021.csv.gz')
-    inputSheets.append(workingPath + inputFilesPath + 'cases-brazil-cities-time.csv.gz')
-
-    # processing deaths data
-    columnsOfNewSheet = ['state', 'city', 'ibgeID', 'year', 'month', 'newCases']
-    columnsOfGroupBy = ['state', 'city', 'ibgeID', 'year', 'month']
-    outputSheetName = "CovidCase.xlsx"
-    internalSheetName = "CovidCase"
-    statisticList = statisticList + processSheets(inputSheets \
-                                                  , workingPath + outputFilesPath \
-                                                  , columnsOfNewSheet \
-                                                  , columnsOfGroupBy \
-                                                  , outputSheetName \
-                                                  , internalSheetName \
-                                                  )
-
-    # saving statistic sheet
-    statisticSheetName = workingPath + outputFilesPath + 'ProcessingStatistics.xlsx'
-    dfStatistic = pd.DataFrame(statisticList, columns=['subject', 'sheet', 'number of rows'])
-    with pd.ExcelWriter(statisticSheetName, mode='w', ) as writer:
-        dfStatistic.to_excel(writer)
+    inputSheetName = "Vaccination.xlsx"
+    outputSheetName = "VaccinationRatioProximity.csv"
+    internalSheetName = "VaccinationRatioProximity"
+    calculationVaccinationRadio(workingPath + inputFilesPath + inputSheetName \
+                                , workingPath + outputFilesPath \
+                                , outputSheetName \
+                                , internalSheetName \
+                                )
 
     # Wait for the user input to terminate the program
     # input("Press any key to terminate the program")

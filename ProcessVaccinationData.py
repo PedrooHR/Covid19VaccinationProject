@@ -82,6 +82,51 @@ def processSheets(inputSheets, outputFilesPath, columnsOfNewSheet, columnsOfGrou
     return statisticList
 
 
+# def processCityPopulation(inputSheets, outputFilesPath, columnsOfNewSheet, columnsOfGroupBy, outputSheetName,
+#                           internalSheetName):
+#     # message in the console
+#     print()
+#     print("----------------------------------------------")
+#     print("Processing ", internalSheetName)
+#     print()
+#
+#     # initializing new dataframe
+#     dfOneSheet = pd.DataFrame()
+#     statisticList = []
+#
+#     # processing sheets
+#     for sheet in inputSheets:
+#         try:
+#             # reading sheet
+#             dfSheet = pd.read_csv(sheet, compression='gzip', header=0, sep=',', quotechar='"')
+#
+#             # getting the city population
+#             columnsOfNewSheet = ['state', 'city', 'ibgeID', 'year', 'month', 'count']
+#             columnsOfGroupBy = ['state', 'city', 'ibgeID', 'year', 'month']
+#             dfCityPopulation = dfSheet[columnsOfNewSheet].groupby(columnsOfGroupBy,
+#                                                                   as_index=False).sum()
+#
+#             # adding dataframe of all states of Brazil
+#             dfOneSheet = pd.concat([dfOneSheet, dfStateVaccinationsGroupedByCity])
+#
+#             # message showing processing the state
+#             print("Processing state", sheet)
+#
+#         except:
+#             # nothing to do
+#             pass
+#
+#     # removing output file if exists
+#     if os.path.exists(outputFilesPath + outputSheetName):
+#         os.remove(outputFilesPath + outputSheetName)
+#
+#     # saving sheet
+#     with pd.ExcelWriter(outputFilesPath + outputSheetName, mode='w', ) as writer:
+#         dfOneSheet.to_excel(writer, sheet_name=internalSheetName)
+#
+#     return statisticList
+#
+
 # ###########################################
 # Main method
 # ###########################################
@@ -107,8 +152,8 @@ if __name__ == '__main__':
         inputSheets.append(workingPath + inputFilesPath + 'processed_' + state.strip() + '.csv.gz')
 
     # processing vaccination data
-    columnsOfNewSheet = ['state', 'city', 'ibgeID', 'year', 'month', 'count']
-    columnsOfGroupBy = ['state', 'city', 'ibgeID', 'year', 'month']
+    columnsOfNewSheet = ['state', 'city', 'ibgeID', 'pop2021', 'year', 'month', 'count']
+    columnsOfGroupBy = ['state', 'city', 'ibgeID', 'pop2021', 'year', 'month']
     outputSheetName = "Vaccination.xlsx"
     internalSheetName = "Vaccination"
     statisticList = statisticList + processSheets(inputSheets \
@@ -118,6 +163,19 @@ if __name__ == '__main__':
                                                   , outputSheetName \
                                                   , internalSheetName \
                                                   )
+
+    # processing vaccination data
+    columnsOfNewSheet = ['state', 'city', 'ibgeID', 'pop2021']
+    columnsOfGroupBy = ['state', 'city', 'ibgeID', 'pop2021']
+    outputSheetName = "City.xlsx"
+    internalSheetName = "City"
+    processSheets(inputSheets \
+                  , workingPath + outputFilesPath \
+                  , columnsOfNewSheet \
+                  , columnsOfGroupBy \
+                  , outputSheetName \
+                  , internalSheetName \
+                  )
 
     # building list of sheets to process the deaths
     inputSheets.clear()
