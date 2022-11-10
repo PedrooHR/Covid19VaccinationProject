@@ -59,7 +59,7 @@ def calculationVaccinationRadio(inputSheet, outputFilesPath, outputSheetName, in
             #         dfVaccinationsGroupedByCity['state'].iloc[target_index]):
             #     continue
 
-            # calculting the euclidean distance bewtween two cities
+            # calculating the euclidean distance bewtween two cities
             euclideanDistance = calculateEuclideanDistanceTwoCities( \
                 dfVaccinationsGroupedByCity['count'].iloc[origin_index] \
                 , dfVaccinationsGroupedByCity['pop2021'].iloc[origin_index] \
@@ -133,3 +133,4 @@ if __name__ == '__main__':
 
     # Wait for the user input to terminate the program
     # input("Press any key to terminate the program")
+    # xxxxxxxxxxx
