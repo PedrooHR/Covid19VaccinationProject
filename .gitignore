@@ -4,4 +4,6 @@ desktop.ini
 data/input/*
 !data/input/.gitkeep
 !data/input/states_of_brazil.xlsx
-data/calculations/*
+data/calculations/*.csv
+data/calculations/*.xlsx
+
