@@ -30,13 +30,12 @@ def getClasses(data_series, number_of_classes, cities):
         new_columns = input_serie['new_columns']
         group_order = input_serie['group_order']
         output_file = input_serie['output_file']
+        selections = input_serie['selections']
         target =input_serie['target']
         name = input_serie['name']
 
         print("\n----------------------------------------------")
         print(f"Processing data for {name}")
-
-        processed_data = pd.DataFrame()
 
         years = [2020, 2021, 2022]
         months = [0, 3, 6, 9, 12] # Always maintain 0 and other number here
@@ -48,6 +47,14 @@ def getClasses(data_series, number_of_classes, cities):
 
             # Remove non-cities
             raw_data = raw_data[raw_data['ibgeID'] > 100].reset_index(drop=True)
+
+            # Special selection
+            for selection in selections:
+                selection_data = pd.DataFrame()
+                for value in selection['values']:
+                    value_data = raw_data[raw_data[selection['target']] == value].reset_index(drop=True)
+                    selection_data = pd.concat([selection_data, value_data], axis=0)
+                raw_data = selection_data
 
             # Divide data by month
             for year in years:
@@ -122,6 +129,7 @@ if __name__ == '__main__':
         'input_files': [outputs_path + "covid_cases.xlsx"],
         'new_columns': ['ibgeID', 'newCases'],
         'group_order': ['ibgeID'],
+        'selections': [],
         'target': 'newCases',
         'output_file': calculations_path + "classes_cases.xlsx",
         'name': "Cases Classes",
@@ -132,16 +140,7 @@ if __name__ == '__main__':
         'input_files': [outputs_path + "covid_deaths.xlsx"],
         'new_columns': ['ibgeID', 'newDeaths'],
         'group_order': ['ibgeID'],
-        'target': 'newDeaths',
-        'output_file': calculations_path + "classes_deaths.xlsx",
-        'name': "Deaths Classes",
-    })
-
-     # Deaths data
-    data_series.append({
-        'input_files': [outputs_path + "covid_deaths.xlsx"],
-        'new_columns': ['ibgeID', 'newDeaths'],
-        'group_order': ['ibgeID'],
+        'selections': [],
         'target': 'newDeaths',
         'output_file': calculations_path + "classes_deaths.xlsx",
         'name': "Deaths Classes",
@@ -152,6 +151,7 @@ if __name__ == '__main__':
         'input_files': [outputs_path + "vaccination.xlsx"],
         'new_columns': ['ibgeID', 'count'],
         'group_order': ['ibgeID'],
+        'selections': [{'target': 'dose', 'values': [0, 1] }],
         'target': 'count',
         'output_file': calculations_path + "classes_vaccination.xlsx",
         'name': "Vaccination Classes",

@@ -141,8 +141,8 @@ if __name__ == '__main__':
     # Vaccination data
     input_data.append({
         'input_files': vaccination_files,
-        'new_columns': ['state', 'city', 'ibgeID', 'pop2021', 'year', 'month', 'count'],
-        'group_order': ['state', 'city', 'ibgeID', 'pop2021', 'year', 'month'],
+        'new_columns': ['state', 'city', 'ibgeID', 'pop2021', 'year', 'month', 'dose', 'count'],
+        'group_order': ['state', 'city', 'ibgeID', 'pop2021', 'year', 'month', 'dose'],
         'output_file': outputs_path + "vaccination.xlsx",
         'name': "Vaccination",
     })
