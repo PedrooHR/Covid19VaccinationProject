@@ -15,20 +15,12 @@ import pandas as pd
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
-from networkx.algorithms import bipartite
 
 
 # ###########################################
 # Library Methods
 # ###########################################
 
-
-# def getBrazilianStates(file_path):
-#     return pd.read_excel(file_path)
-#
-#
-# def getCities(file_path):
-#     return pd.read_excel(file_path)
 
 def drawGraph(graph, output):
     try:
@@ -89,9 +81,6 @@ def drawGraph(graph, output):
 #
 
 def generateGraphs(data_series):
-    '''
-    Returns classes between 0 and 1
-    '''
     for input_serie in data_series:
         # To work better
         input_file = input_serie['input_file']
@@ -181,12 +170,10 @@ if __name__ == '__main__':
     graphs_path = data_path + 'graphs/'
 
     # getting states of Brazil
-    # brazilian_states = getBrazilianStates(inputs_path + 'states_of_brazil.xlsx')
     brazilian_states = pd.read_excel(inputs_path + 'states_of_brazil.xlsx')
 
     # getting all cities
     cities = pd.read_excel(outputs_path + 'city.xlsx')
-    # np_cities = cities.to_numpy()
 
     # Series that describe files to read
     data_series = []
