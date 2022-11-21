@@ -10,16 +10,10 @@ Function: Calculate the ratio proximity between cities from the summarized data.
 # Importing needed libraries
 # ###########################################
 
-
 # importing python packages and modules
 import os
-
 import numpy as np
 import pandas as pd
-import math
-
-
-# from IPython.display import display
 
 
 # ###########################################
@@ -27,7 +21,6 @@ import math
 # ###########################################
 
 
-# def calculateVaccinationRadio(input_data, output_files_path, output_sheet_name, internal_sheet_name):
 def calculateVaccinationRatio(input_data):
     # Input data now contains all information we want to process, so, let us iterate each of them
     for input_serie in input_data:
@@ -41,7 +34,7 @@ def calculateVaccinationRatio(input_data):
 
         # message in the console
         print("\n----------------------------------------------")
-        print(f"Processing input data for {name}")
+        print(f"1) Processing input data for {name}")
         print()
 
         # reading the sheet
@@ -63,9 +56,10 @@ def calculateVaccinationRatio(input_data):
         vaccination_ratio = np.zeros(rows_columns * rows_columns).reshape(rows_columns, rows_columns)
         statistics = []
 
+        print(f"2) Calculating the total sum of vaccination doses")
+        print()
+
         # group data summarizing number of vaccines of each city
-        # columns_of_new_sheet = ['state', 'city', 'ibgeID', 'pop2021', 'dose', 'count']
-        # columns_of_group_by = ['state', 'city', 'ibgeID', 'pop2021', 'dose']
         sheet_summarized = sheet[new_columns].groupby(group_order, as_index=False).sum()
 
         # processing each city to calculate the summary of the doses
@@ -85,9 +79,12 @@ def calculateVaccinationRatio(input_data):
         doses_5 = cities['dose_5']
 
         # setting ibgeID of the two cities
-        for index in range(1, number_of_cities - 1):
-            vaccination_ratio[index][0] = ibgeID[index]
-            vaccination_ratio[0][index] = ibgeID[index]
+        for index in range(0, number_of_cities):
+            vaccination_ratio[index + 1][0] = ibgeID[index]
+            vaccination_ratio[0][index + 1] = ibgeID[index]
+
+        print(f"3) Calculating the proximity ratio between cities")
+        print()
 
         # calculation of ratio proximity between the cities
         for origin_index in range(0, number_of_cities - 1):
@@ -106,6 +103,9 @@ def calculateVaccinationRatio(input_data):
                 # setting the proximity ratio of two cities
                 vaccination_ratio[origin_index + 1][target_index + 1] = proximity_ratio
 
+        print(f"4) Saving results")
+        print()
+
         # removing output file if exists
         if os.path.exists(output_file):
             os.remove(output_file)
@@ -116,11 +116,11 @@ def calculateVaccinationRatio(input_data):
             os.remove(output_file_xlsx)
 
         # saving the array
-        print('Saving results in CSV format: {output_file}')
+        print(f"Saving results in CSV format: {output_file}")
         np.savetxt(output_file, vaccination_ratio, delimiter=",")
 
         # convert array into a dataframe to save in Excel format
-        print('Saving results in Excel format: {output_file}')
+        print(f"Saving results in Excel format: {output_file}")
         df = pd.DataFrame(vaccination_ratio)
         df.to_excel(output_file_xlsx, index=False)
 
