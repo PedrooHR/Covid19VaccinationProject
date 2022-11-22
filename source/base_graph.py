@@ -25,14 +25,22 @@ import matplotlib.pyplot as plt
 def drawGraph(graph, output):
     try:
         # drawing graph
-        pos = nx.spring_layout(graph, seed=3113794652)  # positions for all nodes
+        pos = nx.spring_layout(graph)  # positions for all nodes
+        # pos = nx.spring_layout(graph, seed=3113794652)  # positions for all nodes
+        # pos = nx.random_layout(graph)  # positions for all nodes
+        # pos = nx.circular_layout(graph)  # positions for all nodes
+        # pos = nx.spectral_layout(graph)  # positions for all nodes
 
         # setting nodes
         nx.draw_networkx_nodes(graph, pos, node_size=50, node_color="tab:red")
         nx.draw_networkx_labels(graph, pos, font_size=8, font_family="sans-serif")
 
         # setting edges
-        nx.draw_networkx_edges(graph, pos, width=2, alpha=0.5, edge_color="tab:blue")
+        # edges = [(u, v) for (u, v, d) in G.edges(data=True)]
+        # nx.draw_networkx_edges(graph, pos, edgelist=edges, width=2, alpha=0.5, edge_color="tab:blue")
+        # edge_values = nx.get_edge_attributes(graph, "weight")
+        # nx.draw_networkx_edge_labels(graph, pos)
+        nx.draw_networkx_edges(graph, pos, width=2, alpha=0.5, edge_color="tab:gray")
 
         # Set margins for the axes so that nodes aren't clipped
         ax = plt.gca()
@@ -104,6 +112,8 @@ def generateGraphs(data_series):
         print()
         print(f"2) Reading data from {input_file}")
         raw_data = pd.read_csv(input_file, sep=',', header=None)
+        # raw_data.info(verbose=False)
+        print(raw_data.describe())
         np_raw_data = raw_data.to_numpy()
 
         for id in range(len(targets)):
@@ -131,6 +141,22 @@ def generateGraphs(data_series):
                             nodes.append(compact_origin_city)
                             nodes.append(compact_target_city)
                             edges.append((compact_origin_city, compact_target_city, np_raw_data[i][j]))
+
+            # prepare graph by specific region of Brazil
+            if target == 'north':
+                x = 0
+
+            if target == 'northeast':
+                x = 0
+
+            if target == 'midwest':
+                x = 0
+
+            if target == 'south':
+                x = 0
+
+            if target == 'southeast':
+                x = 0
 
             # removing duplicates values
             nodes = np.unique(nodes)
@@ -183,11 +209,11 @@ if __name__ == '__main__':
         'input_file': calculations_path + "vaccination_ratio_proximity.csv",
         'parameters': [brazilian_states, cities],
         'prefixes': ['vacc_proxy_ratio'],
-        'targets': ['brazil'],
+        'targets': ['brazil', 'north', 'northeast', 'midwest', 'south', 'southeast'],
         'output_path': graphs_path + "graphs_vacc_proxy_ratio/",
-        'output_files': ['brazil'],
+        'output_files': ['brazil', 'north', 'northeast', 'midwest', 'south', 'southeast'],
         'name': "Vaccination-Proximity Ratio Graphs",
-        'ratio_threshold': 0.009,
+        'ratio_threshold': 0.05,
     })
 
     # print("\n----------------------------------------------")
