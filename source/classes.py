@@ -19,6 +19,19 @@ import numpy as np
 # Library Methods
 # ###########################################
 
+def returnClass(values, n_classes, normalize):
+    if normalize == True:
+        max_value = values.max()
+        if max_value > 0:
+            values = values / max_value
+
+    values = np.where(values >= 1, 0.99, values)
+
+    class_division = (1 / n_classes) * 10
+    class_values = np.floor((values * 10) / class_division)
+
+    return class_values
+
 
 def getClasses(data_series, number_of_classes, cities):
     '''
@@ -31,6 +44,8 @@ def getClasses(data_series, number_of_classes, cities):
         group_order = input_serie['group_order']
         output_file = input_serie['output_file']
         selections = input_serie['selections']
+        accumulate = input_serie['accumulate']
+        normalize = input_serie['normalize']
         target =input_serie['target']
         name = input_serie['name']
 
@@ -57,6 +72,7 @@ def getClasses(data_series, number_of_classes, cities):
                 raw_data = selection_data
 
             # Divide data by month
+            accumulated_data = pd.DataFrame([0] * len(cities), columns=[target], index=cities.index)
             for year in years:
                 for month in range(len(months) - 1):
                     year_data = raw_data[raw_data['year']
@@ -79,15 +95,13 @@ def getClasses(data_series, number_of_classes, cities):
 
                     grouped_month_data[target] = np.where(pd.isnull(grouped_month_data[target]), 0, grouped_month_data[target])
 
+                    if accumulate == True:
+                        accumulated_data[target] = accumulated_data[target] + grouped_month_data[target]
+                        grouped_month_data[target] = accumulated_data[target]
+                        
                     # calculate classes
-                    class_division = (1 / (number_of_classes - 1)) * 10 
                     grouped_month_data['class_value'] = (grouped_month_data[target] / grouped_month_data['pop'])
-                    max_value = grouped_month_data['class_value'].max()
-                    if max_value > 0:
-                        grouped_month_data['class'] = (grouped_month_data['class_value'] / max_value) * 10
-                        grouped_month_data['class'] = np.floor(grouped_month_data['class'] / class_division)
-                    else:
-                        grouped_month_data['class'] = grouped_month_data['class_value'] * 0
+                    grouped_month_data['class'] = returnClass(grouped_month_data['class_value'], number_of_classes, normalize)
 
                     final_mont_data = pd.DataFrame(list(grouped_month_data['class']), columns=[
                                                 "(" + str(months[month] + 1) + "-" + str(months[month + 1]) + ")/" + str(year)], index=grouped_month_data.index)
@@ -131,6 +145,8 @@ if __name__ == '__main__':
         'group_order': ['ibgeID'],
         'selections': [],
         'target': 'newCases',
+        'accumulate': False,
+        'normalize': True,
         'output_file': calculations_path + "classes_cases.xlsx",
         'name': "Cases Classes",
     })
@@ -142,6 +158,8 @@ if __name__ == '__main__':
         'group_order': ['ibgeID'],
         'selections': [],
         'target': 'newDeaths',
+        'accumulate': False,
+        'normalize': True,
         'output_file': calculations_path + "classes_deaths.xlsx",
         'name': "Deaths Classes",
     })
@@ -153,6 +171,8 @@ if __name__ == '__main__':
         'group_order': ['ibgeID'],
         'selections': [{'target': 'dose', 'values': [0, 1] }],
         'target': 'count',
+        'accumulate': True,
+        'normalize': False,
         'output_file': calculations_path + "classes_vaccination.xlsx",
         'name': "Vaccination Classes",
     })

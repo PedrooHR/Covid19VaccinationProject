@@ -23,41 +23,42 @@ from networkx.algorithms import bipartite
 # ###########################################
 
 def drawGraph(G, output):
-    try:
-        X, Y = bipartite.sets(G)
-        X = sorted(X)
-        Y = sorted(Y)
-        pos = dict()
-        pos.update( (n, (1, i*10)) for i, n in enumerate(X) ) # put nodes from X at x=1
-        pos.update( (n, (2, i*10)) for i, n in enumerate(Y) ) # put nodes from Y at x=2
+    X = {n for n, d in G.nodes(data=True) if d["bipartite"] == 0}
+    Y = set(G) - X
+    X = sorted(X)
+    Y = sorted(Y)
+    pos = dict()
+    pos.update( (n, (1, i*10)) for i, n in enumerate(X) ) # put nodes from X at x=1
+    pos.update( (n, (2, i*10)) for i, n in enumerate(Y) ) # put nodes from Y at x=2
 
-        edges = [(u, v) for (u, v, d) in G.edges(data=True)]
+    edges = [(u, v) for (u, v, d) in G.edges(data=True)]
 
-        # Nodes
-        nx.draw_networkx_nodes(G, pos, node_size=2000)
+    # Nodes
+    nx.draw_networkx_nodes(G, pos, node_size=2000)
 
-        # node labels
-        nx.draw_networkx_labels(G, pos, font_size=10, font_family="sans-serif")
-
-
-        # Edges
-        nx.draw_networkx_edges(G, pos, edgelist=edges, width=2, alpha=0.5, edge_color="b")
-
-        # edge weight labels        
-        edge_values = nx.get_edge_attributes(G, "weight")
-        nx.draw_networkx_edge_labels(G, pos, edge_values, 0.85)
+    # node labels
+    nx.draw_networkx_labels(G, pos, font_size=10, font_family="sans-serif")
 
 
-        ax = plt.gca()
-        ax.margins(0.08)
-        plt.axis("off")
-        plt.tight_layout()
-        plt.savefig(output + '.png')
-        plt.show()
-    except:
-        pass
+    # Edges
+    edge_values = nx.get_edge_attributes(G, "weight")
+    edge_widths = np.array(list(edge_values.values()))
+    nx.draw_networkx_edges(G, pos, edgelist=edges, width=edge_widths / 250, alpha=0.5, edge_color="b")
 
-def generateGraphs(data_series):
+    # edge weight labels        
+    nx.draw_networkx_edge_labels(G, pos, edge_values, 0.85)
+
+
+    ax = plt.gca()
+    ax.margins(0.08)
+    plt.axis("off")
+    plt.tight_layout()
+    plt.savefig(output + '.png')
+    plt.show()
+    # except:
+    #     pass
+
+def generateGraphs(data_series, number_of_classes):
     '''
     Returns classes between 0 and 1
     '''
@@ -72,7 +73,6 @@ def generateGraphs(data_series):
 
         print("\n----------------------------------------------")
         print(f"Processing data for {name}")
-
 
         if not os.path.exists(output_path):
             os.mkdir(output_path)
@@ -94,7 +94,7 @@ def generateGraphs(data_series):
             bipartite_id = 0
             for bipartite_serie in bipartite_series:
                 unique_values = bipartite_serie['value'].nunique()
-                nodes = np.arange(0, unique_values[0])
+                nodes = np.arange(0, number_of_classes)
                 nodes = [bipartite_serie['name'] + str(x) for x in nodes]
                 bipartite_nodes.append({'id': bipartite_id, 'nodes': nodes})
                 bipartite_id = bipartite_id + 1
@@ -117,6 +117,7 @@ def generateGraphs(data_series):
             # Nodes
             for nodes in bipartite_nodes:
                 G.add_nodes_from(nodes['nodes'], bipartite=nodes['id']) 
+
             # Edges
             for edge in weighted_edges:
                 G.add_edge(edge['n1'], edge['n2'], weight=edge['weight'])
@@ -165,5 +166,5 @@ if __name__ == '__main__':
     })
 
     # This processes all the input files described before
-    generateGraphs(data_series)
+    generateGraphs(data_series, 5)
 
