@@ -170,7 +170,7 @@ if __name__ == '__main__':
 
     # initializing names
     input_filename = "vaccination.xlsx"
-    output_filename = "vaccination_ratio_proximity.csv"
+    output_filename = "vaccination_ratio.csv"
 
     # vaccination data
     input_data.append({
