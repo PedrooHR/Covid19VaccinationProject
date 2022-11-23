@@ -6,4 +6,5 @@ data/input/*
 !data/input/states_of_brazil.xlsx
 data/calculations/*.csv
 data/calculations/*.xlsx
-
+data/graphs/*.xlsx
+data/graphs/*.gexf
