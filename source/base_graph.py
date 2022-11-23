@@ -54,51 +54,19 @@ def drawGraph(graph, output):
         pass
 
 
-# def drawGraph2(G, output):
-#     try:
-#         X, Y = bipartite.sets(G)
-#         X = sorted(X)
-#         Y = sorted(Y)
-#         pos = dict()
-#         pos.update((n, (1, i * 10)) for i, n in enumerate(X))  # put nodes from X at x=1
-#         pos.update((n, (2, i * 10)) for i, n in enumerate(Y))  # put nodes from Y at x=2
-#
-#         edges = [(u, v) for (u, v, d) in G.edges(data=True)]
-#
-#         # Nodes
-#         nx.draw_networkx_nodes(G, pos, node_size=2000)
-#
-#         # node labels
-#         nx.draw_networkx_labels(G, pos, font_size=10, font_family="sans-serif")
-#
-#         # Edges
-#         nx.draw_networkx_edges(G, pos, edgelist=edges, width=2, alpha=0.5, edge_color="b")
-#
-#         # edge weight labels
-#         edge_values = nx.get_edge_attributes(G, "weight")
-#         nx.draw_networkx_edge_labels(G, pos, edge_values, 0.85)
-#
-#         ax = plt.gca()
-#         ax.margins(0.08)
-#         plt.axis("off")
-#         plt.tight_layout()
-#         plt.savefig(output + '.png')
-#         plt.show()
-#     except:
-#         pass
-#
-
 def generateGraphs(data_series):
     for input_serie in data_series:
         # To work better
-        input_file = input_serie['input_file']
+        input_files_path = input_serie['input_files_path']
+        input_file_prefix = input_serie['input_file_prefix']
+        input_files = input_serie['input_files']
         parameters = input_serie['parameters']
         brazilian_states = parameters[0]
         np_cities = parameters[1]
         output_path = input_serie['output_path']
         targets = input_serie['targets']
         prefixes = input_serie['prefixes']
-        output_files = input_serie['output_files']
+        output_file = input_serie['output_file']
         name = input_serie['name']
         ratio_threshold = input_serie['ratio_threshold']
 
@@ -108,78 +76,92 @@ def generateGraphs(data_series):
         if not os.path.exists(output_path):
             os.mkdir(output_path)
 
-        # reading the raw data of vaccination proximity ratio
-        print()
-        print(f"2) Reading data from {input_file}")
-        raw_data = pd.read_csv(input_file, sep=',', header=None)
-        # raw_data.info(verbose=False)
-        print(raw_data.describe())
-        np_raw_data = raw_data.to_numpy()
+        # processing input files to build graphs
+        for input_file in input_files:
+            # setting the full name of input file
+            input_filename = input_files_path + input_file_prefix + input_file + '.csv'
 
-        for id in range(len(targets)):
-            target = targets[id]
-            output_file = output_files[id]
+            # reading the raw data of vaccination proximity ratio
+            print()
+            print(f"2) Reading data from {input_filename}")
+            raw_data = pd.read_csv(input_filename, sep=',', header=None)
+            np_raw_data = raw_data.to_numpy()
 
-            # possible targets:
-            # 1) brazil
-            # 2) list of regions of brazil: north, northeast, midwest, south, southeast
-            # 3) list of some states related by initials
-
-            if target == 'brazil':
-
-                # selecting nodes and edges
-                nodes = []
-                edges = []
-                for i in range(1, len(np_raw_data)):
-                    for j in range(i + 1, len(np_raw_data)):
-                        # applying threshold value
-                        if np_raw_data[i][j] > 0 and np_raw_data[i][j] <= ratio_threshold:
-                            origin_city = np_cities.loc[np_cities['ibgeID'] == np_raw_data[i][0]]['city'].array[0]
-                            target_city = np_cities.loc[np_cities['ibgeID'] == np_raw_data[0][j]]['city'].array[0]
-                            compact_origin_city = origin_city[:5] + origin_city[-3:]
-                            compact_target_city = target_city[:5] + target_city[-3:]
-                            nodes.append(compact_origin_city)
-                            nodes.append(compact_target_city)
-                            edges.append((compact_origin_city, compact_target_city, np_raw_data[i][j]))
-
-            # prepare graph by specific region of Brazil
-            if target == 'north':
-                x = 0
-
-            if target == 'northeast':
-                x = 0
-
-            if target == 'midwest':
-                x = 0
-
-            if target == 'south':
-                x = 0
-
-            if target == 'southeast':
-                x = 0
-
-            # removing duplicates values
-            nodes = np.unique(nodes)
-
-            # creating graph
-            graph = nx.Graph()
-
-            # adding nodes
-            graph.add_nodes_from(nodes)
-
-            # adding edges
-            for edge in edges:
-                graph.add_edge(edge[0], edge[1])
+            # evaluate_values(np_raw_data)
 
             print()
-            print(f"3) Showing graph")
+            print(f"3) Building graphs")
 
-            # saving graph in gexf format
-            # print(output_path + output_file + '.gexf')
-            nx.write_gexf(graph, output_path + output_file + '.gexf')
+            for id in range(len(targets)):
+                target = targets[id]
+                output_file_name = output_file + '_' + input_file
 
-            # showing graph
-            drawGraph(graph, output_path + output_file)
+                # possible targets:
+                # 1) brazil
+                # 2) list of regions of brazil: north, northeast, midwest, south, southeast
+                # 3) list of some states related by initials
+
+                if target == 'brazil':
+
+                    # selecting nodes and edges
+                    nodes = []
+                    edges = []
+                    for i in range(1, len(np_raw_data)):
+                        print(f'origin index {i}')
+                        for j in range(i + 1, len(np_raw_data)):
+                            # applying threshold value
+                            if 0 < np_raw_data[i][j] <= ratio_threshold:
+                                # origin_city = np_cities.loc[np_cities['ibgeID'] == np_raw_data[i][0]]['city'].array[0]
+                                # target_city = np_cities.loc[np_cities['ibgeID'] == np_raw_data[0][j]]['city'].array[0]
+                                # compact_origin_city = origin_city[:5] + origin_city[-3:]
+                                # compact_target_city = target_city[:5] + target_city[-3:]
+                                # edges.append((compact_origin_city, compact_target_city, np_raw_data[i][j]))
+                                edges.append((np_raw_data[i][0], np_raw_data[0][j], np_raw_data[i][j]))
+
+                # getting the city name
+                # origin_city = np_cities.loc[np_cities['ibgeID'] == np_raw_data[i][0]]['city'].array[0]
+                # target_city = np_cities.loc[np_cities['ibgeID'] == np_raw_data[0][j]]['city'].array[0]
+                # compact_origin_city = origin_city[:5] + origin_city[-3:]
+                # compact_target_city = target_city[:5] + target_city[-3:]
+                # edges.append((compact_origin_city, compact_target_city, np_raw_data[i][j]))
+
+                # building list of nodes fom edges
+                np_edges = np.array(edges)
+                nodes = np.unique(np.concatenate((np.unique(np_edges[:, 0]), np.unique(np_edges[:, 1])))).tolist()
+
+                # creating graph
+                graph = nx.Graph()
+
+                # adding nodes
+                graph.add_nodes_from(nodes)
+
+                # adding edges
+                for edge in edges:
+                    graph.add_edge(edge[0], edge[1])
+
+                print()
+                print(f"4) Showing graph")
+
+                # saving graph in gexf format
+                # print(output_path + output_file + '.gexf')
+                nx.write_gexf(graph, output_path + output_file_name + '.gexf')
+
+                # showing graph
+                # drawGraph(graph, output_path + output_file_name)
+
+
+def evaluate_values(np_raw_data):
+    min_value = 999999999
+    max_value = 0
+    for i in range(2, len(np_raw_data)):
+        for j in range(i + 1, len(np_raw_data)):
+            if 0 < np_raw_data[i][j] < min_value:
+                min_value = np_raw_data[i][j]
+            if np_raw_data[i][j] > max_value:
+                max_value = np_raw_data[i][j]
+
+    print(f"Min value: {min_value}")
+    print(f"Max value: {max_value}")
 
 
 # ###########################################
@@ -204,19 +186,27 @@ if __name__ == '__main__':
     # Series that describe files to read
     data_series = []
 
+    # ratio threshold used in all base graphs
+    ratio_threshold = 0.05
+
     # Vaccination_Cases data
     data_series.append({
-        'input_file': calculations_path + "vaccination_ratio_proximity.csv",
+        'input_files_path': calculations_path,
+        'input_file_prefix': "vaccination_ratio_",
+        'input_files': ['2021_0', '2021_1', '2021_2', '2021_3', '2022_0', '2022_1', '2022_2', '2022_3'],
         'parameters': [brazilian_states, cities],
         'prefixes': ['vacc_proxy_ratio'],
-        'targets': ['brazil', 'north', 'northeast', 'midwest', 'south', 'southeast'],
+        'targets': ['brazil'],
         'output_path': graphs_path + "graphs_vacc_proxy_ratio/",
-        'output_files': ['brazil', 'north', 'northeast', 'midwest', 'south', 'southeast'],
+        'output_file': 'brazil',
         'name': "Vaccination-Proximity Ratio Graphs",
-        'ratio_threshold': 0.05,
+        'ratio_threshold': ratio_threshold,
     })
 
     # print("\n----------------------------------------------")
 
     # This processes all the input files described before
     generateGraphs(data_series)
+
+    # Wait for the user input to terminate the program
+    # input("Press any key to terminate the program")

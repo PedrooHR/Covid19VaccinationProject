@@ -6,4 +6,6 @@ data/input/*
 !data/input/states_of_brazil.xlsx
 data/calculations/*.csv
 data/calculations/*.xlsx
-
+data/graphs/*.xlsx
+data/graphs/*.gexf
+data/graphs/graphs_vacc_proxy_ratio_ratio/*.gexf
