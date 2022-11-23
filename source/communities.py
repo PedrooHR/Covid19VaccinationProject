@@ -68,7 +68,6 @@ def generateCommunities(data_series):
         prefixes = input_serie['prefixes']
         output_file = input_serie['output_file']
         name = input_serie['name']
-        ratio_threshold = input_serie['ratio_threshold']
 
         print()
         print(f"1) Processing data for {name}")
@@ -87,7 +86,7 @@ def generateCommunities(data_series):
             input_filename = input_files_path + input_file_prefix + input_file + '.gexf'
 
             # reading the raw data of vaccination proximity ratio
-            print()
+            # print()
             # print(f"2) Reading data from {input_filename}")
             graph = nx.read_gexf(input_filename)
 
@@ -99,7 +98,7 @@ def generateCommunities(data_series):
             modularity = nx_comm.modularity(graph, communities)
             print(f"Modularity of network: {modularity}")
 
-            i = 00000
+            i = 0
             for community in communities:
                 modularity = nx_comm.modularity(graph, communities)
                 i = i + 1
@@ -123,24 +122,18 @@ if __name__ == '__main__':
     # Series that describe files to read
     data_series = []
 
-    # ratio threshold used in all base graphs
-    ratio_threshold = 0.05
-
     # Vaccination_Cases data
     data_series.append({
         'input_files_path': gexf_path,
         'input_file_prefix': "brazil_",
-        'input_files': ['2022_2'],
-        # 'input_files': ['2021_0', '2021_1', '2021_2', '2021_3', '2022_0', '2022_1', '2022_2', '2022_3'],
+        # 'input_files': ['2022_2'],
+        'input_files': ['2021_0', '2021_1', '2021_2', '2021_3', '2022_0', '2022_1', '2022_2', '2022_3'],
         'prefixes': ['vacc_proxy_ratio'],
         'targets': ['brazil'],
         'output_path': graphs_path + "graphs_vacc_proxy_ratio/",
         'output_file': 'brazil',
         'name': "Vaccination-Proximity Ratio Graphs",
-        'ratio_threshold': ratio_threshold,
     })
-
-    # print("\n----------------------------------------------")
 
     # This processes all the input files described before
     generateCommunities(data_series)
