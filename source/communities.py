@@ -99,7 +99,7 @@ def generateCommunities(data_series):
             modularity = nx_comm.modularity(graph, communities)
             print(f"Modularity of network: {modularity}")
 
-            i = 0
+            i = 00000
             for community in communities:
                 modularity = nx_comm.modularity(graph, communities)
                 i = i + 1
