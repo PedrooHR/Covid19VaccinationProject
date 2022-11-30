@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <gexf xmlns="http://www.gexf.net/1.2draft" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2">
-  <meta lastmodifieddate="2022-11-22">
+  <meta lastmodifieddate="2022-11-23">
     <creator>NetworkX 2.8.8</creator>
   </meta>
   <graph defaultedgetype="undirected" mode="static" name="">
@@ -68,11 +68,11 @@
       <edge source="vacc_3" target="deaths_1" id="5" weight="41" />
       <edge source="vacc_3" target="deaths_0" id="6" weight="2432" />
       <edge source="vacc_3" target="deaths_3" id="7" weight="2" />
-      <edge source="vacc_4" target="deaths_2" id="8" weight="11" />
-      <edge source="vacc_4" target="deaths_1" id="9" weight="125" />
-      <edge source="vacc_4" target="deaths_0" id="10" weight="2572" />
-      <edge source="vacc_4" target="deaths_3" id="11" weight="5" />
-      <edge source="vacc_4" target="deaths_4" id="12" weight="2" />
+      <edge source="vacc_4" target="deaths_4" id="8" weight="2" />
+      <edge source="vacc_4" target="deaths_2" id="9" weight="11" />
+      <edge source="vacc_4" target="deaths_1" id="10" weight="125" />
+      <edge source="vacc_4" target="deaths_0" id="11" weight="2572" />
+      <edge source="vacc_4" target="deaths_3" id="12" weight="5" />
     </edges>
   </graph>
 </gexf>
