@@ -4,8 +4,11 @@ Professor: João Meidanis
 Students: Pedro Henrique Di Francia Rosso and Rubens de Castro Pereira
 Date: 24/10/2022
 Version: 1.0.0
-Function: Calculate the ratio proximity between cities from the summarized data.
+Function:
+1) Calculate the sum of doses per city.
+2) Calculate the ratio proximity between cities from the summarized data.
 """
+
 # ###########################################
 # Importing needed libraries
 # ###########################################
@@ -29,7 +32,10 @@ def calculateVaccinationRatio(input_data):
         cities = input_serie['cities']
         new_columns = input_serie['new_columns']
         group_order = input_serie['group_order']
-        output_file = input_serie['output_file']
+        output_path = input_serie['output_path']
+        output_files = input_serie['output_files']
+        output_file_vaccination_ratio = output_files[0]
+        output_file_city_doses = output_files[1]
         name = input_serie['name']
 
         # message in the console
@@ -40,13 +46,7 @@ def calculateVaccinationRatio(input_data):
         # reading the sheet
         raw_data = pd.read_excel(input_files)
 
-        xxxxxxxxx = 0
-
         # adding new column with year and month together
-        # raw_data['year_month'] = raw_data['month'].astype(str).zfill(2)
-        # raw_data['year_month'] = raw_data['month'].astype(str).zfill(2)
-        # raw_data['year_month'] = raw_data['year']
-        # raw_data['year_month'] = raw_data['year'].to_string() + raw_data['year'].to_string()
         raw_data['year_month'] = (raw_data['year'].apply(lambda x: f"{x:04d}") + \
                                   raw_data['month'].apply(lambda x: f"{x:02d}")).astype(int)
 
@@ -67,8 +67,8 @@ def calculateVaccinationRatio(input_data):
         cities['dose_5'] = 0
 
         # initializing new array
-        vaccination_ratio = np.zeros(rows_columns * rows_columns).reshape(rows_columns, rows_columns)
-        statistics = []
+        # vaccination_ratio = np.zeros(rows_columns * rows_columns).reshape(rows_columns, rows_columns)
+        # statistics = []
 
         # Divide data by month
         for year in years:
@@ -76,14 +76,10 @@ def calculateVaccinationRatio(input_data):
                 year_month = int(str(year) + str(month + 1).zfill(2))
                 year_month_data = raw_data[raw_data['year_month'] <= year_month].reset_index(drop=True)
 
-                # year_data = raw_data[raw_data['year'] <= year].reset_index(drop=True)
-                # month_data = year_data[year_data['month'] > months[month]].reset_index(drop=True)
-                # month_data = month_data[month_data['month'] <= months[month + 1]].reset_index(drop=True)
-
                 # initializing new array
                 vaccination_ratio = np.zeros(rows_columns * rows_columns).reshape(rows_columns, rows_columns)
 
-                print(f"2) Calculating the total sum of vaccination doses")
+                print(f"2) Calculating the total sum of vaccination doses: {year}-{month}")
                 print()
 
                 # group data summarizing number of vaccines of each city
@@ -97,8 +93,9 @@ def calculateVaccinationRatio(input_data):
                         cities._set_value(city_index, 'dose_' + str(row['dose']), (row['count'] / row['pop2021']))
 
                 # saving cities with doses sum
-                output_file_cities_xlsx = output_file + "_cities_" + str(year) + "_" + str(month) + ".xlsx"
-                cities.to_excel(output_file_cities_xlsx, index=False)
+                output_file_city_doses_csv = output_path + output_file_city_doses + "_" + str(year) + "_" + str(
+                    month) + ".csv"
+                cities.to_csv(output_file_city_doses_csv, index=False)
 
                 # getting the series doses
                 ibgeID = cities['ibgeID']
@@ -114,12 +111,12 @@ def calculateVaccinationRatio(input_data):
                     vaccination_ratio[index + 1][0] = ibgeID[index]
                     vaccination_ratio[0][index + 1] = ibgeID[index]
 
-                print(f"3) Calculating the proximity ratio between cities")
+                print(f"3) Calculating proximity ratio between cities")
                 print()
 
                 # calculation of ratio proximity between cities
                 for origin_index in range(0, number_of_cities - 1):
-                    print(f'origin index {origin_index}')
+                    print(f'{year}-{month} - origin city index {origin_index}')
 
                     for target_index in range(origin_index + 1, number_of_cities):
                         # print(f'target index {target_index}')
@@ -139,27 +136,19 @@ def calculateVaccinationRatio(input_data):
                         vaccination_ratio[origin_index + 1][target_index + 1] = proximity_ratio
                         vaccination_ratio[target_index + 1][origin_index + 1] = proximity_ratio
 
+                print()
                 print(f"4) Saving results")
                 print()
 
                 # removing output file if exists
-                output_file_csv = output_file + "_" + str(year) + "_" + str(month) + ".csv"
-                if os.path.exists(output_file_csv):
-                    os.remove(output_file_csv)
-
-                # defining excel file
-                # output_file_xlsx = output_file + '.xlsx'
-                # if os.path.exists(output_file_xlsx):
-                #     os.remove(output_file_xlsx)
+                output_file_vaccination_ratio_csv = output_path + output_file_vaccination_ratio + "_" + \
+                                                    str(year) + "_" + str(month) + ".csv"
+                if os.path.exists(output_file_vaccination_ratio_csv):
+                    os.remove(output_file_vaccination_ratio_csv)
 
                 # saving the array
-                print(f"Saving results in CSV format: {output_file_csv}")
-                np.savetxt(output_file_csv, vaccination_ratio, delimiter=",")
-
-                # convert array into a dataframe to save in Excel format
-                # print(f"Saving results in Excel format: {output_file_xlsx}")
-                # df = pd.DataFrame(vaccination_ratio)
-                # df.to_excel(output_file_xlsx, index=False)
+                print(f"Saving results in CSV format: {output_file_vaccination_ratio_csv}")
+                np.savetxt(output_file_vaccination_ratio_csv, vaccination_ratio, delimiter=",")
 
 
 def calculateEuclideanDistance( \
@@ -211,13 +200,10 @@ if __name__ == '__main__':
         'cities': cities,
         'new_columns': ['state', 'city', 'ibgeID', 'pop2021', 'dose', 'count'],
         'group_order': ['state', 'city', 'ibgeID', 'pop2021', 'dose'],
-        'output_file': outputs_path + output_filename,
+        'output_path': outputs_path,
+        'output_files': ["vaccination_ratio", "city_doses"],
         'name': "vaccination_ratio",
     })
 
     # calculating the vaccination ratio
     calculateVaccinationRatio(input_data)
-
-    # Wait for the user input to terminate the program
-    # input("Press any key to terminate the program")
-    # xxxxxxxxxxx

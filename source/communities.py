@@ -95,8 +95,8 @@ def generateCommunities(data_series):
             communities = greedy_modularity_communities(graph)
             print(f"Number of Communities: {len(communities)}")
 
-            modularity = nx_comm.modularity(graph, communities)
-            print(f"Modularity of network: {modularity}")
+            # modularity = nx_comm.modularity(graph, communities)
+            # print(f"Modularity of network: {modularity}")
 
             i = 0
             for community in communities:
@@ -126,8 +126,8 @@ if __name__ == '__main__':
     data_series.append({
         'input_files_path': gexf_path,
         'input_file_prefix': "brazil_",
-        # 'input_files': ['2022_2'],
-        'input_files': ['2021_0', '2021_1', '2021_2', '2021_3', '2022_0', '2022_1', '2022_2', '2022_3'],
+        'input_files': ['2022_2'],
+        # 'input_files': ['2021_0', '2021_1', '2021_2', '2021_3', '2022_0', '2022_1', '2022_2', '2022_3'],
         'prefixes': ['vacc_proxy_ratio'],
         'targets': ['brazil'],
         'output_path': graphs_path + "graphs_vacc_proxy_ratio/",
