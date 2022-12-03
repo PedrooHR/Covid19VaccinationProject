@@ -8,7 +8,4 @@ data/calculations/*.csv
 data/calculations/*.xlsx
 data/graphs/*.xlsx
 data/graphs/*.gexf
-<<<<<<< HEAD
-data/graphs/graphs_vacc_proxy_ratio_ratio/*.gexf
-=======
->>>>>>> bfabb2689d525b9555149673aaba583a2721ea80
+data/graphs/graphs_vacc_proxy_ratio/*.gexf

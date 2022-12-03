@@ -30,6 +30,7 @@ def calculateVaccinationRatio(input_data):
         # to work better
         input_files = input_serie['input_files']
         cities = input_serie['cities']
+        outliers_cities = input_serie['outliers_cities']
         new_columns = input_serie['new_columns']
         group_order = input_serie['group_order']
         output_path = input_serie['output_path']
@@ -46,13 +47,25 @@ def calculateVaccinationRatio(input_data):
         # reading the sheet
         raw_data = pd.read_excel(input_files)
 
+        # removing outliers cities of raw data
+        for ibgeID in outliers_cities:
+            raw_data_indexes = raw_data.loc[raw_data['ibgeID'] == ibgeID].index
+            raw_data = raw_data.drop(index=raw_data_indexes)
+        raw_data = raw_data.reset_index()
+
         # adding new column with year and month together
         raw_data['year_month'] = (raw_data['year'].apply(lambda x: f"{x:04d}") + \
                                   raw_data['month'].apply(lambda x: f"{x:02d}")).astype(int)
 
         # setting years and months to process
         years = [2021, 2022]
-        months = [0, 3, 6, 9, 12]  # Always maintain 0 and other number here
+        months = [3, 6, 9, 12]  # Always maintain 0 and other number here
+
+        # removing outliers cities
+        for ibgeID in outliers_cities:
+            city_index = cities.loc[cities['ibgeID'] == ibgeID].index
+            cities = cities.drop(index=city_index)
+        cities = cities.reset_index()
 
         # get the number of cities
         number_of_cities = len(cities)
@@ -66,18 +79,15 @@ def calculateVaccinationRatio(input_data):
         cities['dose_4'] = 0
         cities['dose_5'] = 0
 
-        # initializing new array
-        # vaccination_ratio = np.zeros(rows_columns * rows_columns).reshape(rows_columns, rows_columns)
-        # statistics = []
-
         # Divide data by month
         for year in years:
-            for month in range(len(months) - 1):
-                year_month = int(str(year) + str(month + 1).zfill(2))
+            for month in months:
+                year_month = int(str(year) + str(month).zfill(2))
                 year_month_data = raw_data[raw_data['year_month'] <= year_month].reset_index(drop=True)
 
                 # initializing new array
-                vaccination_ratio = np.zeros(rows_columns * rows_columns).reshape(rows_columns, rows_columns)
+                vaccination_ratio = np.zeros(rows_columns * rows_columns, dtype="float32").reshape(rows_columns,
+                                                                                                   rows_columns)
 
                 print(f"2) Calculating the total sum of vaccination doses: {year}-{month}")
                 print()
@@ -87,6 +97,10 @@ def calculateVaccinationRatio(input_data):
 
                 # processing each city to calculate the summary of the doses
                 for city_index, city_row in cities.iterrows():
+                    # # disregarding outliers cities
+                    # if city_row['ibgeID'] in outliers_cities:
+                    #     continue
+
                     city = month_summarized.loc[month_summarized['ibgeID'] == city_row['ibgeID']]
                     for index, row in city.iterrows():
                         # adding new columns for doses
@@ -116,7 +130,7 @@ def calculateVaccinationRatio(input_data):
 
                 # calculation of ratio proximity between cities
                 for origin_index in range(0, number_of_cities - 1):
-                    print(f'{year}-{month} - origin city index {origin_index}')
+                    print(f'{year}_{month} - origin city index {origin_index}')
 
                     for target_index in range(origin_index + 1, number_of_cities):
                         # print(f'target index {target_index}')
@@ -148,7 +162,7 @@ def calculateVaccinationRatio(input_data):
 
                 # saving the array
                 print(f"Saving results in CSV format: {output_file_vaccination_ratio_csv}")
-                np.savetxt(output_file_vaccination_ratio_csv, vaccination_ratio, delimiter=",")
+                np.savetxt(output_file_vaccination_ratio_csv, vaccination_ratio, delimiter=",", fmt='%1.6f')
 
 
 def calculateEuclideanDistance( \
@@ -190,6 +204,11 @@ if __name__ == '__main__':
     input_cities = inputs_path + "city.xlsx"
     cities = pd.read_excel(input_cities)
 
+    # reading all cities
+    input_outliers_cities = inputs_path + "outliers.xlsx"
+    outliers_cities = pd.read_excel(input_outliers_cities)
+    outliers_cities_list = outliers_cities['ibgeID'].values.tolist()
+
     # initializing names
     input_filename = "vaccination.xlsx"
     output_filename = "vaccination_ratio"
@@ -198,6 +217,7 @@ if __name__ == '__main__':
     input_data.append({
         'input_files': inputs_path + input_filename,
         'cities': cities,
+        'outliers_cities': outliers_cities_list,
         'new_columns': ['state', 'city', 'ibgeID', 'pop2021', 'dose', 'count'],
         'group_order': ['state', 'city', 'ibgeID', 'pop2021', 'dose'],
         'output_path': outputs_path,

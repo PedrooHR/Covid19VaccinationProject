@@ -101,6 +101,10 @@ def generateGraphs(data_series):
             community_cities['dose'] = community_cities['dose_0'] + community_cities['dose_1']
             community_cities.index = community_cities['ibgeID'].tolist()
 
+            # excluded cities
+            # excluded_cities = [2407906, 2413607, 3117876, 3513306, 3516101, 3543105, 2306207, 2405207, 3512605, 5211008,
+            #                    2410009, 2919959, 1302108, 5204953, 4100459, 2605459, 2406908, 2409704, 2411908]
+
             print()
             print(f"3) Building graphs")
             printNow("Step 3")
@@ -124,6 +128,12 @@ def generateGraphs(data_series):
                         # print(f'{input_file_year_month} - origin city index {i}')
 
                         for j in range(i + 1, len(np_raw_data)):
+                            # # checking excluded city
+                            # if np_raw_data[i][0] in excluded_cities:
+                            #     continue
+                            # if np_raw_data[0][j] in excluded_cities:
+                            #     continue
+
                             # applying threshold value
                             if 0 < np_raw_data[i][j] <= ratio_threshold:
                                 edges.append((np_raw_data[i][0], np_raw_data[0][j], np_raw_data[i][j]))
@@ -291,8 +301,8 @@ if __name__ == '__main__':
     data_series.append({
         'input_files_path': calculations_path,
         'input_files_prefix': ['vaccination_ratio_', 'city_doses_'],
-        # 'input_files': ['2021_0'],
-        'input_files': ['2021_0', '2021_1', '2021_2', '2021_3', '2022_0', '2022_1', '2022_2', '2022_3'],
+        # 'input_files': ['2021_3', '2022_9'],
+        'input_files': ['2021_3', '2021_6', '2021_9', '2021_12', '2022_3', '2022_6', '2022_9'],
         'parameters': [brazilian_states, cities],
         'prefixes': ['vacc_proxy_ratio'],
         'targets': ['brazil'],
