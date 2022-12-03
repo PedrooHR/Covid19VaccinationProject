@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <gexf xmlns="http://www.gexf.net/1.2draft" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2">
-  <meta lastmodifieddate="2022-11-23">
+  <meta lastmodifieddate="2022-12-03">
     <creator>NetworkX 2.8.8</creator>
   </meta>
   <graph defaultedgetype="undirected" mode="static" name="">
@@ -61,18 +61,23 @@
     </nodes>
     <edges>
       <edge source="vacc_0" target="deaths_0" id="0" weight="5" />
-      <edge source="vacc_1" target="deaths_0" id="1" weight="33" />
-      <edge source="vacc_2" target="deaths_1" id="2" weight="1" />
-      <edge source="vacc_2" target="deaths_0" id="3" weight="339" />
-      <edge source="vacc_3" target="deaths_2" id="4" weight="2" />
-      <edge source="vacc_3" target="deaths_1" id="5" weight="41" />
-      <edge source="vacc_3" target="deaths_0" id="6" weight="2432" />
-      <edge source="vacc_3" target="deaths_3" id="7" weight="2" />
-      <edge source="vacc_4" target="deaths_4" id="8" weight="2" />
-      <edge source="vacc_4" target="deaths_2" id="9" weight="11" />
-      <edge source="vacc_4" target="deaths_1" id="10" weight="125" />
-      <edge source="vacc_4" target="deaths_0" id="11" weight="2572" />
-      <edge source="vacc_4" target="deaths_3" id="12" weight="5" />
+      <edge source="vacc_1" target="deaths_1" id="1" weight="4" />
+      <edge source="vacc_1" target="deaths_0" id="2" weight="27" />
+      <edge source="vacc_1" target="deaths_2" id="3" weight="2" />
+      <edge source="vacc_2" target="deaths_2" id="4" weight="16" />
+      <edge source="vacc_2" target="deaths_1" id="5" weight="54" />
+      <edge source="vacc_2" target="deaths_0" id="6" weight="269" />
+      <edge source="vacc_2" target="deaths_3" id="7" weight="1" />
+      <edge source="vacc_3" target="deaths_1" id="8" weight="644" />
+      <edge source="vacc_3" target="deaths_3" id="9" weight="41" />
+      <edge source="vacc_3" target="deaths_0" id="10" weight="1563" />
+      <edge source="vacc_3" target="deaths_2" id="11" weight="223" />
+      <edge source="vacc_3" target="deaths_4" id="12" weight="4" />
+      <edge source="vacc_4" target="deaths_3" id="13" weight="105" />
+      <edge source="vacc_4" target="deaths_0" id="14" weight="1392" />
+      <edge source="vacc_4" target="deaths_2" id="15" weight="314" />
+      <edge source="vacc_4" target="deaths_4" id="16" weight="11" />
+      <edge source="vacc_4" target="deaths_1" id="17" weight="622" />
     </edges>
   </graph>
 </gexf>

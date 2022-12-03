@@ -31,7 +31,7 @@ def getCHDIClass(chdi):
         return 4
 
 
-def processData(input_data, cities):
+def processData(input_data, cities, outliers):
     # Input data now contains all information we want to process, so, let us iterate each of them
     for input_serie in input_data:
         # To work better
@@ -48,46 +48,45 @@ def processData(input_data, cities):
         years = [2020, 2021, 2022]
         months = [0, 3, 6, 9, 12] # Always maintain 0 and other number here
         for sheet in input_files:
-            try:
-                # Read file
-                raw_data = pd.read_excel(sheet)
-                
-                # convert city names to lowercase and put state in format (XX)
-                cities['city'] = list(x.split("/")[-2].lower() + " (" + x.split("/")[-1].lower() + ")" for x in cities['city'].values)
+            # Read file
+            raw_data = pd.read_excel(sheet)
+            
+            # convert city names to lowercase and put state in format (XX)
+            cities['city'] = list(x.split("/")[-2].lower() + " (" + x.split("/")[-1].lower() + ")" for x in cities['city'].values)
 
-                # put all city names to same codification
-                cities['city'] = list(unidecode(x) for x in cities['city'])
-                raw_data['Territorialidade'] = list(unidecode(x) for x in raw_data['Territorialidade'])
+            # put all city names to same codification
+            cities['city'] = list(unidecode(x) for x in cities['city'])
+            raw_data['Territorialidade'] = list(unidecode(x) for x in raw_data['Territorialidade'])
 
-                # add ibgeID to the CHDI dataframe
-                raw_data['ibgeID'] = list(cities[cities['city'] == x.lower()]['ibgeID'].values for x in raw_data['Territorialidade'].values) 
+            # add ibgeID to the CHDI dataframe
+            raw_data['ibgeID'] = list(cities[cities['city'] == x.lower()]['ibgeID'].values for x in raw_data['Territorialidade'].values) 
 
-                # remove unmatched rows
-                raw_data['ibgeID'] = list(x[0] if len(x) > 0 else 0 for x in raw_data['ibgeID'])
-                processed_data = raw_data[raw_data['ibgeID'] != 0]
+            # remove unmatched rows
+            raw_data['ibgeID'] = list(x[0] if len(x) > 0 else 0 for x in raw_data['ibgeID'])
+            processed_data = raw_data[raw_data['ibgeID'] != 0]
 
-                # calculate classes
-                classes = list(getCHDIClass(x) for x in raw_data['IDHM'])
+            # calculate classes
+            classes = list(getCHDIClass(x) for x in raw_data['IDHM'])
 
-                # Create a period (equal in all periods) dataframe with classes
-                classes_chdi = pd.DataFrame()
-                for year in years:
-                    for month in range(len(months) - 1):
-                         classes_chdi["(" + str(months[month] + 1) + "-" + str(months[month + 1]) + ")/" + str(year)] = classes
+            # Create a period (equal in all periods) dataframe with classes
+            classes_chdi = pd.DataFrame()
+            for year in years:
+                for month in range(len(months) - 1):
+                        classes_chdi["(" + str(months[month] + 1) + "-" + str(months[month + 1]) + ")/" + str(year)] = classes
 
-                classes_chdi.index = raw_data['ibgeID']
+            classes_chdi.index = raw_data['ibgeID']
 
-                # message showing processing the state
-                print("Processed sheet: ", sheet.split('/')[-1])
-
-            except:
-                pass
-
+            # message showing processing the state
+            print("Processed sheet: ", sheet.split('/')[-1])
+            
         # removing output file if exists
         if os.path.exists(output_file):
             os.remove(output_file)
         if os.path.exists(classes_file):
             os.remove(classes_file)
+
+        # remove outliers
+        classes_chdi = classes_chdi.drop(outliers, axis=0, errors='ignore')
 
         # saving sheet
         with pd.ExcelWriter(output_file, mode='w', ) as writer:
@@ -119,6 +118,10 @@ if __name__ == '__main__':
     # get information about cities
     cities = pd.read_excel(outputs_path + "city.xlsx")
 
+    # outliers
+    outliers = pd.read_excel(inputs_path + "outliers.xlsx")
+    outliers = list(outliers['ibgeID'])
+
     # Vaccination data
     input_data.append({
         'input_files': chdi_files,
@@ -128,4 +131,4 @@ if __name__ == '__main__':
     })
 
     # This processes all the input files described before
-    processData(input_data, cities)
+    processData(input_data, cities, outliers)

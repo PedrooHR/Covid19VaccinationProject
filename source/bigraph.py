@@ -23,6 +23,7 @@ from networkx.algorithms import bipartite
 # ###########################################
 
 def drawGraph(G, title, output):
+    fig = plt.figure(figsize=(5, 5))
     X = {n for n, d in G.nodes(data=True) if d["bipartite"] == 0}
     Y = set(G) - X
     X = sorted(X)
@@ -39,15 +40,21 @@ def drawGraph(G, title, output):
     # node labels
     nx.draw_networkx_labels(G, pos, font_size=10, font_family="sans-serif")
 
-
     # Edges
     edge_values = nx.get_edge_attributes(G, "weight")
+    edges_df = pd.DataFrame(edge_values.values(), columns=['weight'], index=pd.MultiIndex.from_tuples(edge_values.keys(), names=["first", "second"]))
+    sum_edges_df = edges_df.groupby(level=['first']).sum()
+    values_edges_perc = []
+    for idx, row in edges_df.iterrows():
+       values_edges_perc.append(row[0]/sum_edges_df['weight'][idx[0]])
+    edges_df['percentage'] = values_edges_perc
+    # pd.set_option('precision', 4)
+    edges_df.to_excel(output + '.xlsx')
     edge_widths = np.array(list(edge_values.values()))
-    nx.draw_networkx_edges(G, pos, edgelist=edges, width=(1 + (edge_widths / 250)), alpha=0.5, edge_color="b")
+    nx.draw_networkx_edges(G, pos, edgelist=edges, width=(edge_widths / 250), alpha=0.5, edge_color="b")
 
     # edge weight labels        
     # nx.draw_networkx_edge_labels(G, pos, edge_values, 0.85)
-
 
     ax = plt.gca()
     ax.margins(0.08)
@@ -55,7 +62,8 @@ def drawGraph(G, title, output):
     plt.title(title)
     plt.tight_layout()
     plt.savefig(output + '.png')
-    plt.show()
+    plt.close()
+    # plt.show()
 
 def generateGraphs(data_series, number_of_classes):
     for input_serie in data_series:
@@ -143,25 +151,25 @@ if __name__ == '__main__':
     # Series that describe files to read
     data_series = []
 
-    # # Vaccination_Cases data
-    # data_series.append({
-    #     'input_files': [calculations_path + "classes_vaccination.xlsx", calculations_path + "classes_cases.xlsx"],
-    #     'prefixes': ['vacc_', 'cases_'],
-    #     'targets': ['(1-3)/2021', '(4-6)/2021', '(7-9)/2021', '(10-12)/2021', '(1-3)/2022','(4-6)/2022', '(7-9)/2022'],
-    #     'output_path': graphs_path + "graphs_vacc_cases/",
-    #     'output_files': ['2021-1to3','2021-4to6', '2021-7to9', '2021-10to12', '2022-1to3', '2022-4to6', '2022-7to9'],
-    #     'name': "Vaccination-Cases BiGraphs",
-    # })
+    # Vaccination_Cases data
+    data_series.append({
+        'input_files': [calculations_path + "classes_vaccination.xlsx", calculations_path + "classes_cases.xlsx"],
+        'prefixes': ['vacc_', 'cases_'],
+        'targets': ['(1-3)/2021', '(4-6)/2021', '(7-9)/2021', '(10-12)/2021', '(1-3)/2022','(4-6)/2022', '(7-9)/2022'],
+        'output_path': graphs_path + "graphs_vacc_cases/",
+        'output_files': ['2021-1to3','2021-4to6', '2021-7to9', '2021-10to12', '2022-1to3', '2022-4to6', '2022-7to9'],
+        'name': "Vaccination-Cases BiGraphs",
+    })
 
-    # # Vaccination_Deaths data
-    # data_series.append({
-    #     'input_files': [calculations_path + "classes_vaccination.xlsx", calculations_path + "classes_deaths.xlsx"],
-    #     'prefixes': ['vacc_', 'deaths_'],
-    #     'targets': ['(1-3)/2021', '(4-6)/2021', '(7-9)/2021', '(10-12)/2021', '(1-3)/2022','(4-6)/2022', '(7-9)/2022'],
-    #     'output_path': graphs_path + "graphs_vacc_deaths/",
-    #     'output_files': ['2021-1to3','2021-4to6', '2021-7to9', '2021-10to12', '2022-1to3', '2022-4to6', '2022-7to9'],
-    #     'name': "Vaccination-Deaths BiGraphs",
-    # })
+    # Vaccination_Deaths data
+    data_series.append({
+        'input_files': [calculations_path + "classes_vaccination.xlsx", calculations_path + "classes_deaths.xlsx"],
+        'prefixes': ['vacc_', 'deaths_'],
+        'targets': ['(1-3)/2021', '(4-6)/2021', '(7-9)/2021', '(10-12)/2021', '(1-3)/2022','(4-6)/2022', '(7-9)/2022'],
+        'output_path': graphs_path + "graphs_vacc_deaths/",
+        'output_files': ['2021-1to3','2021-4to6', '2021-7to9', '2021-10to12', '2022-1to3', '2022-4to6', '2022-7to9'],
+        'name': "Vaccination-Deaths BiGraphs",
+    })
 
     # Vaccination_CHDI data
     data_series.append({

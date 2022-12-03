@@ -13,27 +13,55 @@ Function: Generate graphs
 import os
 import pandas as pd
 import numpy as np
+from sklearn import cluster
 
 
 # ###########################################
 # Library Methods
 # ###########################################
 
-def returnClass(values, n_classes, normalize):
+def returnClass(values, n_classes, normalize, kmeans):
+
     if normalize == True:
-        max_value = values.max()
+        max_value = values['class_value'].max()
         if max_value > 0:
-            values = values / max_value
+            values['class_value'] = values['class_value'] / max_value
 
-    values = np.where(values >= 1, 0.99, values)
+    values['class_value'] = np.where(values['class_value'] >= 1, 0.99, values['class_value'])
 
-    class_division = (1 / n_classes) * 10
-    class_values = np.floor((values * 10) / class_division)
+    class_values = [0] * len(values['class_value'])
+
+    # # Get unique values
+    # values_ = values['class_value'].unique()
+    # values_ = sorted(values_)
+    # size = len(values_)
+    
+    # # Divide classes by unique values
+    # class_it = int(round(size / n_classes))
+    # it = size - 1
+    # class_id = n_classes - 1
+    # for i in range(n_classes):
+    #     curr_value = values_[it]
+    #     class_values = np.where(values['class_value'] <= curr_value, class_id, class_values)
+
+    #     it = it - class_it
+    #     class_id = class_id - 1
+        
+    if kmeans == False:
+        class_division = (1 / n_classes) * 10
+        class_values = np.floor((values['class_value'] * 10) / class_division)
+    else:
+        kmeans_alg = cluster.KMeans(n_clusters=n_classes, n_init=200).fit(np.array(values['class_value']).reshape(-1, 1))
+        # this puts the kmeans results ordered
+        idx = np.argsort(kmeans_alg.cluster_centers_.sum(axis=1))
+        lut = np.zeros_like(idx)
+        lut[idx] = np.arange(n_classes)
+        class_values = lut[kmeans_alg.labels_]
 
     return class_values
 
 
-def getClasses(data_series, number_of_classes, cities):
+def getClasses(data_series, number_of_classes, cities, outliers):
     '''
     Returns classes between 0 and 1
     '''
@@ -46,6 +74,7 @@ def getClasses(data_series, number_of_classes, cities):
         selections = input_serie['selections']
         accumulate = input_serie['accumulate']
         normalize = input_serie['normalize']
+        kmeans = input_serie['kmeans']
         target =input_serie['target']
         name = input_serie['name']
 
@@ -101,7 +130,7 @@ def getClasses(data_series, number_of_classes, cities):
                         
                     # calculate classes
                     grouped_month_data['class_value'] = (grouped_month_data[target] / grouped_month_data['pop'])
-                    grouped_month_data['class'] = returnClass(grouped_month_data['class_value'], number_of_classes, normalize)
+                    grouped_month_data['class'] = returnClass(pd.DataFrame(grouped_month_data['class_value'], index=grouped_month_data.index), number_of_classes, normalize, kmeans)
 
                     final_mont_data = pd.DataFrame(list(grouped_month_data['class']), columns=[
                                                 "(" + str(months[month] + 1) + "-" + str(months[month + 1]) + ")/" + str(year)], index=grouped_month_data.index)
@@ -112,6 +141,9 @@ def getClasses(data_series, number_of_classes, cities):
         # removing output file if exists
         if os.path.exists(output_file):
             os.remove(output_file)
+
+        # remove outliers
+        data_by_time = data_by_time.drop(outliers, axis=0)
 
         # saving sheet
         with pd.ExcelWriter(output_file, mode='w', ) as writer:
@@ -135,6 +167,10 @@ if __name__ == '__main__':
     cities = pd.read_excel(outputs_path + "city.xlsx")
     cities = pd.DataFrame(list(cities['pop2021']), columns=['pop'], index=cities['ibgeID'])
 
+    # outliers
+    outliers = pd.read_excel(inputs_path + "outliers.xlsx")
+    outliers = list(outliers['ibgeID'])
+
     # Series that describe files to read
     data_series = []
 
@@ -146,7 +182,8 @@ if __name__ == '__main__':
         'selections': [],
         'target': 'newCases',
         'accumulate': False,
-        'normalize': True,
+        'normalize': False,
+        'kmeans': True,
         'output_file': calculations_path + "classes_cases.xlsx",
         'name': "Cases Classes",
     })
@@ -159,7 +196,8 @@ if __name__ == '__main__':
         'selections': [],
         'target': 'newDeaths',
         'accumulate': False,
-        'normalize': True,
+        'normalize': False,
+        'kmeans': True,
         'output_file': calculations_path + "classes_deaths.xlsx",
         'name': "Deaths Classes",
     })
@@ -173,11 +211,12 @@ if __name__ == '__main__':
         'target': 'count',
         'accumulate': True,
         'normalize': False,
+        'kmeans': False,
         'output_file': calculations_path + "classes_vaccination.xlsx",
         'name': "Vaccination Classes",
     })
 
 
     # This processes all the input files described before
-    getClasses(data_series, 5, cities)
+    getClasses(data_series, 5, cities, outliers)
 

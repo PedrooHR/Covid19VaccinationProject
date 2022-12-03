@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <gexf xmlns="http://www.gexf.net/1.2draft" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2">
-  <meta lastmodifieddate="2022-11-30">
+  <meta lastmodifieddate="2022-12-03">
     <creator>NetworkX 2.8.8</creator>
   </meta>
   <graph defaultedgetype="undirected" mode="static" name="">
@@ -60,19 +60,25 @@
       </node>
     </nodes>
     <edges>
-      <edge source="vacc_0" target="cases_0" id="0" weight="179" />
-      <edge source="vacc_1" target="cases_0" id="1" weight="3117" />
-      <edge source="vacc_1" target="cases_1" id="2" weight="10" />
-      <edge source="vacc_1" target="cases_4" id="3" weight="1" />
-      <edge source="vacc_1" target="cases_2" id="4" weight="3" />
-      <edge source="vacc_2" target="cases_0" id="5" weight="2089" />
-      <edge source="vacc_2" target="cases_1" id="6" weight="9" />
-      <edge source="vacc_2" target="cases_4" id="7" weight="4" />
-      <edge source="vacc_2" target="cases_2" id="8" weight="1" />
-      <edge source="vacc_3" target="cases_0" id="9" weight="135" />
-      <edge source="vacc_3" target="cases_1" id="10" weight="2" />
-      <edge source="vacc_4" target="cases_2" id="11" weight="1" />
-      <edge source="vacc_4" target="cases_0" id="12" weight="19" />
+      <edge source="vacc_0" target="cases_1" id="0" weight="51" />
+      <edge source="vacc_0" target="cases_0" id="1" weight="109" />
+      <edge source="vacc_0" target="cases_2" id="2" weight="12" />
+      <edge source="vacc_0" target="cases_3" id="3" weight="7" />
+      <edge source="vacc_1" target="cases_1" id="4" weight="1162" />
+      <edge source="vacc_1" target="cases_0" id="5" weight="1166" />
+      <edge source="vacc_1" target="cases_4" id="6" weight="4" />
+      <edge source="vacc_1" target="cases_2" id="7" weight="609" />
+      <edge source="vacc_1" target="cases_3" id="8" weight="157" />
+      <edge source="vacc_2" target="cases_4" id="9" weight="3" />
+      <edge source="vacc_2" target="cases_2" id="10" weight="551" />
+      <edge source="vacc_2" target="cases_3" id="11" weight="164" />
+      <edge source="vacc_2" target="cases_0" id="12" weight="488" />
+      <edge source="vacc_2" target="cases_1" id="13" weight="747" />
+      <edge source="vacc_3" target="cases_1" id="14" weight="25" />
+      <edge source="vacc_3" target="cases_0" id="15" weight="18" />
+      <edge source="vacc_3" target="cases_2" id="16" weight="17" />
+      <edge source="vacc_3" target="cases_3" id="17" weight="6" />
+      <edge source="vacc_4" target="cases_1" id="18" weight="1" />
     </edges>
   </graph>
 </gexf>
