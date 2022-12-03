@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='utf-8'?>
+<gexf xmlns="http://www.gexf.net/1.2draft" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2">
+  <meta lastmodifieddate="2022-12-03">
+    <creator>NetworkX 2.8.8</creator>
+  </meta>
+  <graph defaultedgetype="undirected" mode="static" name="">
+    <attributes mode="static" class="node">
+      <attribute id="0" title="bipartite" type="long" />
+    </attributes>
+    <nodes>
+      <node id="vacc_0" label="vacc_0">
+        <attvalues>
+          <attvalue for="0" value="0" />
+        </attvalues>
+      </node>
+      <node id="vacc_1" label="vacc_1">
+        <attvalues>
+          <attvalue for="0" value="0" />
+        </attvalues>
+      </node>
+      <node id="vacc_2" label="vacc_2">
+        <attvalues>
+          <attvalue for="0" value="0" />
+        </attvalues>
+      </node>
+      <node id="vacc_3" label="vacc_3">
+        <attvalues>
+          <attvalue for="0" value="0" />
+        </attvalues>
+      </node>
+      <node id="vacc_4" label="vacc_4">
+        <attvalues>
+          <attvalue for="0" value="0" />
+        </attvalues>
+      </node>
+      <node id="chdi_0" label="chdi_0">
+        <attvalues>
+          <attvalue for="0" value="1" />
+        </attvalues>
+      </node>
+      <node id="chdi_1" label="chdi_1">
+        <attvalues>
+          <attvalue for="0" value="1" />
+        </attvalues>
+      </node>
+      <node id="chdi_2" label="chdi_2">
+        <attvalues>
+          <attvalue for="0" value="1" />
+        </attvalues>
+      </node>
+      <node id="chdi_3" label="chdi_3">
+        <attvalues>
+          <attvalue for="0" value="1" />
+        </attvalues>
+      </node>
+      <node id="chdi_4" label="chdi_4">
+        <attvalues>
+          <attvalue for="0" value="1" />
+        </attvalues>
+      </node>
+    </nodes>
+    <edges>
+      <edge source="vacc_0" target="chdi_3" id="0" weight="74" />
+      <edge source="vacc_0" target="chdi_0" id="1" weight="4" />
+      <edge source="vacc_0" target="chdi_4" id="2" weight="2" />
+      <edge source="vacc_0" target="chdi_1" id="3" weight="19" />
+      <edge source="vacc_0" target="chdi_2" id="4" weight="80" />
+      <edge source="vacc_1" target="chdi_2" id="5" weight="1310" />
+      <edge source="vacc_1" target="chdi_3" id="6" weight="1196" />
+      <edge source="vacc_1" target="chdi_0" id="7" weight="26" />
+      <edge source="vacc_1" target="chdi_4" id="8" weight="40" />
+      <edge source="vacc_1" target="chdi_1" id="9" weight="523" />
+      <edge source="vacc_2" target="chdi_0" id="10" weight="2" />
+      <edge source="vacc_2" target="chdi_4" id="11" weight="1" />
+      <edge source="vacc_2" target="chdi_1" id="12" weight="761" />
+      <edge source="vacc_2" target="chdi_2" id="13" weight="699" />
+      <edge source="vacc_2" target="chdi_3" id="14" weight="490" />
+      <edge source="vacc_3" target="chdi_3" id="15" weight="14" />
+      <edge source="vacc_3" target="chdi_1" id="16" weight="26" />
+      <edge source="vacc_3" target="chdi_2" id="17" weight="26" />
+      <edge source="vacc_4" target="chdi_1" id="18" weight="1" />
+    </edges>
+  </graph>
+</gexf>
