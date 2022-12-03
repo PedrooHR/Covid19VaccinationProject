@@ -4,4 +4,9 @@ desktop.ini
 data/input/*
 !data/input/.gitkeep
 !data/input/states_of_brazil.xlsx
+data/calculations/*.csv
+data/calculations/*.xlsx
+data/graphs/*.xlsx
+data/graphs/*.gexf
+data/graphs/graphs_vacc_proxy_ratio/*.gexf
 !data/input/chdi.xlsx
