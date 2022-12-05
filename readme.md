@@ -14,4 +14,4 @@ Our data is provided by [Wesley Cota](https://github.com/wcota)'s following repo
 - Covid cases/deaths data: https://github.com/wcota/covid19br 
 - Covid vaccination data: https://github.com/wcota/covid19br-vac
 
-## **Dec-2022**
+#### **Dec-2022**
